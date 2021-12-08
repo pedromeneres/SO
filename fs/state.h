@@ -23,7 +23,9 @@ typedef enum { T_FILE, T_DIRECTORY } inode_type;
 typedef struct {
     inode_type i_node_type;
     size_t i_size;
-    int i_data_block;
+	/*Each INODE can have more then 1 block of data*/
+    int i_data_block[MAX_BLOCK_DATA + 1];
+	int last_written_block;
     /* in a real FS, more fields would exist here */
 } inode_t;
 

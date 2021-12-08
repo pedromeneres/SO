@@ -7,6 +7,7 @@
 int tfs_init() {
     state_init();
 
+	/*test git pull command*/
     /* create root inode */
     int root = inode_create(T_DIRECTORY);
     if (root != ROOT_DIR_INUM) {

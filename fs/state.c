@@ -110,8 +110,10 @@ int inode_create(inode_type n_type) {
                     return -1;
                 }
 
+				inode_table[inumber].last_written_block = 0;
                 inode_table[inumber].i_size = BLOCK_SIZE;
-                inode_table[inumber].i_data_block = b;
+				//MUDEI!!!
+                inode_table[inumber].i_data_block[inode_table[inumber].last_written_block] = b;
 
                 dir_entry_t *dir_entry = (dir_entry_t *)data_block_get(b);
                 if (dir_entry == NULL) {
@@ -125,7 +127,9 @@ int inode_create(inode_type n_type) {
             } else {
                 /* In case of a new file, simply sets its size to 0 */
                 inode_table[inumber].i_size = 0;
-                inode_table[inumber].i_data_block = -1;
+				inode_table->last_written_block = 0;
+				//MUDEI!!!
+                inode_table[inumber].i_data_block[inode_table[inumber].last_written_block] = -1;
             }
             return inumber;
         }
@@ -150,10 +154,11 @@ int inode_delete(int inumber) {
 
     freeinode_ts[inumber] = FREE;
 
+	//MUDEI!!!
     if (inode_table[inumber].i_size > 0) {
-        if (data_block_free(inode_table[inumber].i_data_block) == -1) {
-            return -1;
-        }
+		for(int i = 0 ; i < inode_table[inumber].last_written_block; i++){
+			data_block_free(inode_table[inumber].i_data_block[i]);
+        }return -1;
     }
 
     /* TODO: handle non-empty directories (either return error, or recursively
@@ -200,8 +205,9 @@ int add_dir_entry(int inumber, int sub_inumber, char const *sub_name) {
     }
 
     /* Locates the block containing the directory's entries */
+	//MUDEI!!!
     dir_entry_t *dir_entry =
-        (dir_entry_t *)data_block_get(inode_table[inumber].i_data_block);
+        (dir_entry_t *)data_block_get(inode_table[inumber].i_data_block[inode_table[inumber].last_written_block]);
     if (dir_entry == NULL) {
         return -1;
     }
@@ -233,8 +239,9 @@ int find_in_dir(int inumber, char const *sub_name) {
     }
 
     /* Locates the block containing the directory's entries */
+	//MUDEI!!!
     dir_entry_t *dir_entry =
-        (dir_entry_t *)data_block_get(inode_table[inumber].i_data_block);
+        (dir_entry_t *)data_block_get(inode_table[inumber].i_data_block[inode_table[inumber].last_written_block]);
     if (dir_entry == NULL) {
         return -1;
     }
@@ -294,6 +301,7 @@ void *data_block_get(int block_number) {
     }
 
     insert_delay(); // simulate storage access delay to block
+
     return &fs_data[block_number * BLOCK_SIZE];
 }
 
