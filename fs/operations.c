@@ -58,7 +58,7 @@ int tfs_open(char const *name, int flags) {
         /* Trucate (if requested) */
         if (flags & TFS_O_TRUNC) {
             if (inode->i_size > 0) {
-                if (data_block_free(inode->i_data_block) == -1) {
+                if (data_block_free(inode->i_data_block[inode->last_written_index]) == -1) {
                     return -1;
                 }
                 inode->i_size = 0;
@@ -113,16 +113,33 @@ ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
 
     /* Determine how many bytes to write */
     if (to_write + file->of_offset > BLOCK_SIZE) {
-        to_write = BLOCK_SIZE - file->of_offset;
+		size_t exccess;
+		exccess = to_write - BLOCK_SIZE;
+		to_write -= exccess;
+		/*Increment last_written_index*/
+		inode->last_written_index++;
+		/*Alloc a new data block for next index in i_data_block*/
+		inode->i_data_block[inode->last_written_index] = data_block_alloc();
+
+		void *block = data_block_get(inode->i_data_block[inode->last_written_index]);
+
+		/* Perform the actual write */
+		/*QUESTIONS HERE*/
+        memcpy(block + file->of_offset, buffer, exccess);
+
+		file->of_offset += exccess;
+        if (file->of_offset > inode->i_size) {
+            inode->i_size = file->of_offset;
+        }
     }
 
     if (to_write > 0) {
         if (inode->i_size == 0) {
             /* If empty file, allocate new block */
-            inode->i_data_block = data_block_alloc();
+            inode->i_data_block[inode->last_written_index] = data_block_alloc();
         }
 
-        void *block = data_block_get(inode->i_data_block);
+        void *block = data_block_get(inode->i_data_block[inode->last_written_index]);
         if (block == NULL) {
             return -1;
         }
@@ -136,6 +153,7 @@ ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
         if (file->of_offset > inode->i_size) {
             inode->i_size = file->of_offset;
         }
+		/*If full add a new index to the i_data_block from inode*/
     }
 
     return (ssize_t)to_write;
@@ -165,7 +183,7 @@ ssize_t tfs_read(int fhandle, void *buffer, size_t len) {
     }
 
     if (to_read > 0) {
-        void *block = data_block_get(inode->i_data_block);
+        void *block = data_block_get(inode->i_data_block[inode->last_written_index]);
         if (block == NULL) {
             return -1;
         }

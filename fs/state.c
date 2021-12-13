@@ -110,10 +110,12 @@ int inode_create(inode_type n_type) {
                     return -1;
                 }
 
-				inode_table[inumber].last_written_block = 0;
+
+				inode_table[inumber].last_written_index = 0;
+				//Makes the index[0] of the inode array of data point to the data_block array in which the data is going to be stored
+				inode_table[inumber].i_data_block[inode_table[inumber].last_written_index] = b;
                 inode_table[inumber].i_size = BLOCK_SIZE;
-				//MUDEI!!!
-                inode_table[inumber].i_data_block[inode_table[inumber].last_written_block] = b;
+
 
                 dir_entry_t *dir_entry = (dir_entry_t *)data_block_get(b);
                 if (dir_entry == NULL) {
@@ -127,9 +129,7 @@ int inode_create(inode_type n_type) {
             } else {
                 /* In case of a new file, simply sets its size to 0 */
                 inode_table[inumber].i_size = 0;
-				inode_table->last_written_block = 0;
-				//MUDEI!!!
-                inode_table[inumber].i_data_block[inode_table[inumber].last_written_block] = -1;
+
             }
             return inumber;
         }
@@ -156,13 +156,10 @@ int inode_delete(int inumber) {
 
 	//MUDEI!!!
     if (inode_table[inumber].i_size > 0) {
-		for(int i = 0 ; i < inode_table[inumber].last_written_block; i++){
+		for(int i = 0 ; i < inode_table[inumber].last_written_index; i++){
 			data_block_free(inode_table[inumber].i_data_block[i]);
         }return -1;
     }
-
-    /* TODO: handle non-empty directories (either return error, or recursively
-     * delete children */
 
     return 0;
 }
@@ -207,7 +204,7 @@ int add_dir_entry(int inumber, int sub_inumber, char const *sub_name) {
     /* Locates the block containing the directory's entries */
 	//MUDEI!!!
     dir_entry_t *dir_entry =
-        (dir_entry_t *)data_block_get(inode_table[inumber].i_data_block[inode_table[inumber].last_written_block]);
+        (dir_entry_t *)data_block_get(inode_table[inumber].i_data_block[inode_table[inumber].last_written_index]);
     if (dir_entry == NULL) {
         return -1;
     }
@@ -241,7 +238,7 @@ int find_in_dir(int inumber, char const *sub_name) {
     /* Locates the block containing the directory's entries */
 	//MUDEI!!!
     dir_entry_t *dir_entry =
-        (dir_entry_t *)data_block_get(inode_table[inumber].i_data_block[inode_table[inumber].last_written_block]);
+        (dir_entry_t *)data_block_get(inode_table[inumber].i_data_block[inode_table[inumber].last_written_index]);
     if (dir_entry == NULL) {
         return -1;
     }

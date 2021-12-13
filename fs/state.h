@@ -25,7 +25,7 @@ typedef struct {
     size_t i_size;
 	/*Each INODE can have more then 1 block of data*/
     int i_data_block[MAX_BLOCK_DATA + 1];
-	int last_written_block;
+	int last_written_index;
     /* in a real FS, more fields would exist here */
 } inode_t;
 
