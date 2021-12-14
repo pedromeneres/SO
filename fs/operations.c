@@ -114,23 +114,36 @@ ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
     /* Determine how many bytes to write */
     if (to_write + file->of_offset > BLOCK_SIZE) {
 		size_t exccess;
-		exccess = to_write - BLOCK_SIZE;
+		exccess = (to_write + file->of_offset) - BLOCK_SIZE;
 		to_write -= exccess;
+
+		/*Write everithing that fits inside the block*/
+		void *block_1 = data_block_get(inode->i_data_block[inode->last_written_index]);
+
+		memcpy(block_1 + file->of_offset, buffer, to_write);
+
+		file->of_offset += to_write;
+        if (file->of_offset > inode->i_size) {
+            inode->i_size = file->of_offset;
+        }
+
 		/*Increment last_written_index*/
 		inode->last_written_index++;
+
 		/*Alloc a new data block for next index in i_data_block*/
 		inode->i_data_block[inode->last_written_index] = data_block_alloc();
 
-		void *block = data_block_get(inode->i_data_block[inode->last_written_index]);
+		void *block_2 = data_block_get(inode->i_data_block[inode->last_written_index]);
 
 		/* Perform the actual write */
 		/*QUESTIONS HERE*/
-        memcpy(block + file->of_offset, buffer, exccess);
+        memcpy(block_2 + file->of_offset, buffer, exccess);
 
 		file->of_offset += exccess;
         if (file->of_offset > inode->i_size) {
             inode->i_size = file->of_offset;
         }
+		return (ssize_t)exccess;
     }
 
     if (to_write > 0) {
