@@ -10,11 +10,12 @@ int main() {
 	char *path2 = "/f2";*/
 	char *path3 = "/f3";
 	char str_long[3005];
-    char buffer[40];
+    char buffer[BLOCK_SIZE * 2];
 
-	for(int i=0;i < 2000; i++)
-		strcat(str_long, "y");
+	for(int i=0;i < 2001; i++)
+		strcat(str_long, "z");
 
+	strcat(str_long, "x");
     assert(tfs_init() != -1);
 
 	int f3;
@@ -34,7 +35,6 @@ int main() {
 	r = tfs_write(f2, str2, strlen(str2));*/
 	//r = tfs_write(f3, str1, strlen(str1));
 	//printf("NOW GETTING IN\n");
-	printf("%ld\n", sizeof(str_long));
 	r = tfs_write(f3, str_long, strlen(str_long));
 	/*
 	r = tfs_write(f3, str1, strlen(str1));
@@ -69,6 +69,13 @@ int main() {
 	assert(tfs_close(f2) != -1);*/
 	assert(tfs_close(f3) != -1);
 
+
+	/*TESTING OUT TFS_COPY_TO_EXTERNAL_FILE function*/
+	FILE *fp;
+	fp = fopen("test.txt", "w+");
+	fprintf(fp, "%s", buffer);
+
+	fclose(fp);
 
     printf("Successful test.\n");
 
