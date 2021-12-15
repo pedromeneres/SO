@@ -11,6 +11,7 @@ enum {
     TFS_O_APPEND = 0b100,
 };
 
+
 /*
  * Initializes tecnicofs
  * Returns 0 if successful, -1 otherwise.
@@ -24,7 +25,7 @@ int tfs_init();
 int tfs_destroy();
 
 /*
- * Waits until no file is open and then destroy tecnicofs 
+ * Waits until no file is open and then destroy tecnicofs
  * Returns 0 if successful, -1 otherwise.
  */
 int tfs_destroy_after_all_closed();
@@ -83,10 +84,10 @@ ssize_t tfs_read(int fhandle, void *buffer, size_t len);
  * Devolve 0 em caso de sucesso, -1 em caso de erro.
  * * Input:
  *      - path name of the source file (from TecnicoFS)
- *      - path name of the destination file (in the main file system), which 
+ *      - path name of the destination file (in the main file system), which
  *.       is created it needed, and overwritten if it already exists
  *.     Returns 0 if successful, -1 otherwise.
-*/ 
+*/
 int tfs_copy_to_external_fs(char const *source_path, char const *dest_path);
 
 #endif // OPERATIONS_H

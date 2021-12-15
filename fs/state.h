@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+void print_fs();
+
 /*
  * Directory entry
  */
