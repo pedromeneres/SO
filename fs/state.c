@@ -129,6 +129,7 @@ int inode_create(inode_type n_type) {
             } else {
                 /* In case of a new file, simply sets its size to 0 */
                 inode_table[inumber].i_size = 0;
+				inode_table[inumber].last_written_index = 0;
 
             }
             return inumber;
@@ -346,9 +347,38 @@ open_file_entry_t *get_open_file_entry(int fhandle) {
     return &open_file_table[fhandle];
 }
 
-
-void print_fs(){
-	for(int i=1024; i<=3072; i++){
-		printf("| %c ->[%d]\t", fs_data[i], i);
+/*Aux Function 1*/
+void print_inode_data_block(int inumber){
+	printf("\n===================================\n");
+	printf("========_FS_DATA_BLOCK_NR: %d=======\n", inumber);
+	printf("===================================\n");
+	fflush(stdout);
+	inode_t *f3 = inode_get(inumber);
+	/*Check i_data_blocks from inode*/
+	for (int i = 0; i <= 10; i++)
+	{
+		printf("[%d] -" , f3->i_data_block[i]);
 	}
+	printf("\n");
+}
+
+/*Aux Function*/
+void print_fs_data(int nblocks){
+	inode_t *inode = inode_get(3);
+	printf("\n============================================\n");
+	printf("============_INODE_DATA_BLOCKS_=============\n");
+	printf("============================================\n");
+	fflush(stdout);
+	/*Check fs_data blocks*/
+	for(int i=0; i<=nblocks; i++){
+		if(fs_data[i] != 0){
+			if((i+1) % 1024 == 1){
+				printf("\n\nBLOCK-BREAK\n\n");
+				printf("%d\n", inode->last_written_index);
+			}
+			fflush(stdout);
+			printf(" %c ->[%d]\t", fs_data[i], i);
+		}
+	}
+	printf("\n");
 }

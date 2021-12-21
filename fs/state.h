@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-void print_fs();
-
 /*
  * Directory entry
  */
@@ -27,7 +25,7 @@ typedef struct {
     size_t i_size;
 	/*Each INODE can have more then 1 block of data*/
     int i_data_block[MAX_BLOCK_DATA + 1];
-	int last_written_index;
+	long unsigned int last_written_index;
     /* in a real FS, more fields would exist here */
 } inode_t;
 
@@ -61,5 +59,9 @@ void *data_block_get(int block_number);
 int add_to_open_file_table(int inumber, size_t offset);
 int remove_from_open_file_table(int fhandle);
 open_file_entry_t *get_open_file_entry(int fhandle);
+
+void print_fs_data(int nblocks);
+
+void print_inode_data_block(int inumber);
 
 #endif // STATE_H
