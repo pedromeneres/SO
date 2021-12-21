@@ -364,7 +364,6 @@ void print_inode_data_block(int inumber){
 
 /*Aux Function*/
 void print_fs_data(int nblocks){
-	inode_t *inode = inode_get(3);
 	printf("\n============================================\n");
 	printf("============_INODE_DATA_BLOCKS_=============\n");
 	printf("============================================\n");
@@ -374,7 +373,6 @@ void print_fs_data(int nblocks){
 		if(fs_data[i] != 0){
 			if((i+1) % 1024 == 1){
 				printf("\n\nBLOCK-BREAK\n\n");
-				printf("%d\n", inode->last_written_index);
 			}
 			fflush(stdout);
 			printf(" %c ->[%d]\t", fs_data[i], i);

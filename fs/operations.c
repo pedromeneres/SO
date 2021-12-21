@@ -100,7 +100,9 @@ int tfs_open(char const *name, int flags) {
 int tfs_close(int fhandle) { return remove_from_open_file_table(fhandle); }
 
 ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
-	/*Testing git commits*/
+
+	int cursor = 0;
+
     open_file_entry_t *file = get_open_file_entry(fhandle);
     if (file == NULL) {
         return -1;
@@ -112,71 +114,53 @@ ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
         return -1;
     }
 
-    /* Determine how many bytes to write */
-    if (to_write + file->of_offset > BLOCK_SIZE) {
-		size_t exccess;
-		exccess = (to_write + file->of_offset) - BLOCK_SIZE;
-		to_write -= exccess;
 
-		if(inode->i_size == 0){
+	while (to_write > 0)
+	{
+		size_t aux;
+
+		if(file->of_offset == 0){
 			/*Alloc a new data block for next index in i_data_block*/
 			inode->i_data_block[inode->last_written_index] = data_block_alloc();
 		}
 
-		/*Write everithing that fits inside the block*/
-		void *block_1 = data_block_get(inode->i_data_block[inode->last_written_index]);
+		/*if to_write doesn't fit inside the block*/
+		if(to_write > BLOCK_SIZE){
 
-		memcpy(block_1 + file->of_offset, buffer, to_write);
+			aux = BLOCK_SIZE;
+			to_write -= aux;
+
+			void *block = data_block_get(inode->i_data_block[inode->last_written_index]);
+
+			memcpy(block + file->of_offset, buffer + (cursor * BLOCK_SIZE), aux);
+
+			file->of_offset = 0;
+			inode->i_size++;
+			cursor++;
+
+			/*Increment last_written_index*/
+			inode->last_written_index++;
+
+
+			continue;
+
+		}
+
+		void *block = data_block_get(inode->i_data_block[inode->last_written_index]);
+		memcpy(block + file->of_offset, buffer + (BLOCK_SIZE * cursor), to_write);
 
 		file->of_offset += to_write;
         if (file->of_offset > inode->i_size) {
             inode->i_size = file->of_offset;
-			file->of_offset = 0;
         }
-
 		/*Increment last_written_index*/
-		inode->last_written_index++;
-
-		/*Alloc a new data block for next index in i_data_block*/
-		inode->i_data_block[inode->last_written_index] = data_block_alloc();
-
-		void *block_2 = data_block_get(inode->i_data_block[inode->last_written_index]);
-
-		/* Perform the actual write */
-		/*QUESTIONS HERE*/
-        memcpy(block_2 + file->of_offset, buffer + BLOCK_SIZE, exccess);
-
-		file->of_offset += exccess;
-        if (file->of_offset > inode->i_size) {
-            inode->i_size = file->of_offset;
-        }
-		return (ssize_t)exccess;
-    }
-
-    if (to_write > 0) {
-        if (inode->i_size == 0) {
-            /* If empty file, allocate new block */
-            inode->i_data_block[inode->last_written_index] = data_block_alloc();
-        }
-
-        void *block = data_block_get(inode->i_data_block[inode->last_written_index]);
-        if (block == NULL) {
-            return -1;
-        }
-
-        /* Perform the actual write */
-        memcpy(block + file->of_offset, buffer, to_write);
-
-        /* The offset associated with the file handle is
-         * incremented accordingly */
-        file->of_offset += to_write;
-        if (file->of_offset > inode->i_size) {
-            inode->i_size = file->of_offset;
-        }
-		/*If full add a new index to the i_data_block from inode*/
-    }
-
-    return (ssize_t)to_write;
+		if(to_write == BLOCK_SIZE){
+			inode->last_written_index++;
+			file->of_offset = 0;
+		}
+		break;
+	}
+	return (ssize_t)to_write;
 }
 
 

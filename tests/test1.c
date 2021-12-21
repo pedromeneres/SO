@@ -43,10 +43,14 @@ int main() {
 	f3 = tfs_open(path3, TFS_O_CREAT);
     assert(f3 != -1);
 
-	r = tfs_write(f3, str_long, strlen(str_long));
-	/*
-    r = tfs_write(f1, str1, strlen(str2));
+	r = tfs_write(f3, "AAAA", 4);
 
+	r = tfs_write(f1, str_long, strlen(str_long));
+
+	r = tfs_write(f3, str_long, strlen(str_long));
+
+
+/*
 	r = tfs_write(f3, str_long, strlen(str_long));
 
 	r = tfs_write(f3, str2, strlen(str2));
