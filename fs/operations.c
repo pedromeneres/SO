@@ -135,6 +135,7 @@ ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
 
 			memcpy(block + file->of_offset, buffer + (cursor * BLOCK_SIZE), aux);
 
+			/*Data block is full. Act accordingly*/
 			file->of_offset = 0;
 			inode->i_size++;
 			cursor++;
