@@ -101,6 +101,7 @@ int tfs_close(int fhandle) { return remove_from_open_file_table(fhandle); }
 
 ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
 
+	/*cursor declaration*/
 	int cursor = 0;
 
     open_file_entry_t *file = get_open_file_entry(fhandle);
