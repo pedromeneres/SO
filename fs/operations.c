@@ -119,7 +119,9 @@ ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
 	while (to_write > 0)
 	{
 		size_t aux;
-
+		/*if(inode->last_written_index >= 11){
+			return tfs_write_aux(fhandle, buffer, to_write, inode, file);
+		}*/
 		if(file->of_offset == 0){
 			/*Alloc a new data block for next index in i_data_block*/
 			inode->i_data_block[inode->last_written_index] = data_block_alloc();
@@ -165,6 +167,8 @@ ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
 	return (ssize_t)to_write;
 }
 
+
+/*TFS_WRITE_AUX HERE!!!*/
 
 ssize_t tfs_read(int fhandle, void *buffer, size_t len) {
     open_file_entry_t *file = get_open_file_entry(fhandle);
