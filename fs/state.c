@@ -363,7 +363,7 @@ void print_inode_data_block(int inumber){
 }
 
 /*Aux Function*/
-void print_fs_data(int nblocks){
+void *print_fs_data(int nblocks){
 	printf("\n============================================\n");
 	printf("============_INODE_DATA_BLOCKS_=============\n");
 	printf("============================================\n");
@@ -379,4 +379,5 @@ void print_fs_data(int nblocks){
 		}
 	}
 	printf("\n");
+	return 0;
 }

@@ -68,6 +68,7 @@ int tfs_close(int fhandle);
  */
 ssize_t tfs_write(int fhandle, void const *buffer, size_t len);
 
+//ssize_t tfs_write_aux(inode_t *inode, void const *buffer, size_t to_write, open_file_entry_t *file);
 /* Reads from an open file, starting at the current offset
  * * Input:
  * 	- file handle (obtained from a previous call to tfs_open)

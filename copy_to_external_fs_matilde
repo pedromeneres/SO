@@ -1,0 +1,86 @@
+
+int tfs_copy_to_external_fs(char const *source_path, char const *dest_path) {
+    char buffer[DATA_BLOCKS];
+    size_t file_size_w;
+    ssize_t file_size_r;
+    int fhandle_source, fhandle_dest;
+    /* source_path nao existe */
+    if (tfs_lookup(source_path) == -1){
+        return -1;
+    }
+    /* source_path existe */
+    else{
+        /* dest_path não existe -> cria dest_path e escreve do source_path para dest_path */
+        fhandle_source = tfs_open(source_path, TFS_O_TRUNC); /*fopen(source_path, "w")*/
+        if (fhandle_source < 0){
+            return -1;
+        }
+        file_size_r = tfs_read(fhandle_source, buffer, DATA_BLOCKS); /*fread(buffer, size_t size, size_t nmemb, FILE *stream)*/
+        if (file_size_r < 0){
+            return -1;
+        }
+        if (tfs_lookup(dest_path) == -1){
+            fhandle_dest = tfs_open(dest_path, TFS_O_CREAT); /*fopen(const char *restrict pathname, const char *restrict mode)*/
+            if (fhandle_source < 0){
+            return -1;
+            }
+            tfs_write(fhandle_dest, buffer, file_size_w); /*fwrite(const void *ptr, strlen(buffer), size_t nitems, FILE *stream);*/
+            return 0;
+        }
+        /* dest_path existe -> escreve do source_path para dest_path */
+        else{
+            fhandle_dest = tfs_open(dest_path, TFS_O_TRUNC); /*fopen(const char *restrict pathname, const char *restrict mode)*/
+            if (fhandle_source < 0){
+                return -1;
+            }
+            tfs_write(fhandle_dest, buffer, file_size_w); /*fwrite(const void *ptr, size_t size, size_t nitems, FILE *stream);*/
+            return 0;
+        }
+        tfs_close(fhandle_source); /*int fclose(FILE *stream)*/
+        tfs_close(fhandle_dest); /*int fclose(FILE *stream)*/
+    }
+    return 0;
+}
+
+int tfs_copy_to_external_fs(char const *source_path, char const *dest_path) {
+    char buffer[DATA_BLOCKS];
+    size_t file_size_w;
+    ssize_t file_size_r;
+    int fhandle_source, fhandle_dest;
+    /* source_path nao existe */
+    if (tfs_lookup(source_path) == -1){
+        return -1;
+    }
+    /* source_path existe */
+    else{
+        /* dest_path não existe -> cria dest_path e escreve do source_path para dest_path */
+        fhandle_source = fopen(source_path, "r");
+        if (fhandle_source < 0){
+            return -1;
+        }
+        file_size_r = fread(buffer, size_t size, size_t nmemb, FILE *stream);
+        if (file_size_r < 0){
+            return -1;
+        }
+        if (tfs_lookup(dest_path) == -1){
+            fhandle_dest = fopen(dest_path, "w");
+            if (fhandle_source < 0){
+            return -1;
+            }
+            fwrite(const void *ptr, strlen(buffer), size_t nitems, FILE *stream);
+            return 0;
+        }
+        /* dest_path existe -> escreve do source_path para dest_path */
+        else{
+            fhandle_dest = fopen(const char *restrict pathname, const char *restrict mode);
+            if (fhandle_source < 0){
+                return -1;
+            }
+            fwrite(const void *ptr, size_t size, size_t nitems, FILE *stream);
+            return 0;
+        }
+        fclose(dest_path);
+        fclose(source_path);
+    }
+    return 0;
+}

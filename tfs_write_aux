@@ -1,32 +1,30 @@
-ssize_t tfs_write_aux(int fhandle, void const *buffer, size_t to_write, inode_t *inode, open_file_entry_t *file){
+/*TFS_WRITE_AUX HERE!!!*/
+ssize_t tfs_write_aux(inode_t *inode, void const *buffer, size_t to_write, open_file_entry_t *file){
 
 	/*cursor declaration*/
 	int cursor = 0;
-	int big_file_index = 0;
+	/*Index inside the big file is != from inode index*/
+	int big_file_index = inode->last_written_index - 11;
 
 	/*Alloc a new data block to store the other indexes that this file will need to have*/
 	if(inode->last_written_index == 11){
 		/*This data block is diferent and it will be stored inside the fs_data structure*/
-		inode->i_data_block[MAX_BLOCK_DATA + 1] = data_block_alloc();
+		inode->i_data_block[10] = data_block_alloc();
 	}
 	/*Now we get it*/
-	void *block = data_block_get(inode->i_data_block[MAX_BLOCK_DATA + 1]);
+	/*This new block will support all the following indexes*/
+	void *block = data_block_get(inode->i_data_block[10]);
 	while(to_write > 0){
-		/*Now we get to work*/
-
+		/*While there is something to write*/
 		if(file->of_offset == 0){
 			/*Alloc a new data block for next index in i_data_block*/
 			big_file_index++;
-			block += big_file_index;
-			void *block = data_block_alloc();
 		}
 
 		/*if to_write doesn't fit inside the block*/
 		if(to_write > BLOCK_SIZE){
 
 			to_write -= BLOCK_SIZE;
-
-			void *block =
 
 			memcpy(block + file->of_offset, buffer + (cursor * BLOCK_SIZE), BLOCK_SIZE);
 
@@ -43,8 +41,8 @@ ssize_t tfs_write_aux(int fhandle, void const *buffer, size_t to_write, inode_t 
 
 		}
 
-		void *block = data_block_get(inode->i_data_block[inode->last_written_index]);
-		memcpy(block + file->of_offset, buffer + (BLOCK_SIZE * cursor), to_write);
+		void *block1 = data_block_get(inode->i_data_block[inode->last_written_index]);
+		memcpy(block1 + file->of_offset, buffer + (BLOCK_SIZE * cursor), to_write);
 
 		file->of_offset += to_write;
         if (file->of_offset > inode->i_size) {

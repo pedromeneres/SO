@@ -21,7 +21,7 @@ TARGET_EXECS := tests/test1
 vpath # clears VPATH
 vpath %.h $(INCLUDE_DIRS)
 
-CFLAGS = -std=c11 -D_POSIX_C_SOURCE=200809L
+CFLAGS = -g -std=c11 -D_POSIX_C_SOURCE=200809L
 CFLAGS += $(INCLUDES)
 
 # Warnings
@@ -49,11 +49,11 @@ all: $(TARGET_EXECS)
 
 
 # The following target can be used to invoke clang-format on all the source and header
-# files. clang-format is a tool to format the source code based on the style specified 
+# files. clang-format is a tool to format the source code based on the style specified
 # in the file '.clang-format'.
 # More info available here: https://clang.llvm.org/docs/ClangFormat.html
 
-# The $^ keyword is used in Makefile to refer to the right part of the ":" in the 
+# The $^ keyword is used in Makefile to refer to the right part of the ":" in the
 # enclosing rule. See https://www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
 
 fmt: $(SOURCES) $(HEADERS)
