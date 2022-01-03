@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 
 /* Persistent FS state  (in reality, it should be maintained in secondary
  * memory; for simplicity, this project maintains it in primary memory) */
@@ -347,7 +348,11 @@ open_file_entry_t *get_open_file_entry(int fhandle) {
     return &open_file_table[fhandle];
 }
 
-/*Aux Function 1*/
+/* Prints all the data indexes inside a specific inode
+ * Inputs:
+ * 	 - inumber [from inode]
+ * Returns: void (no return)
+ */
 void print_inode_data_block(int inumber){
 	printf("\n===================================\n");
 	printf("========_FS_DATA_BLOCK_NR: %d=======\n", inumber);
@@ -362,7 +367,11 @@ void print_inode_data_block(int inumber){
 	printf("\n");
 }
 
-/*Aux Function*/
+/* Prints all NON-EMPTY Data Entries on fs_data
+ * Inputs:
+ * 	 - nblocks [number of data blocks]
+ * Returns: void (no return)
+ */
 void *print_fs_data(int nblocks){
 	printf("\n============================================\n");
 	printf("============_INODE_DATA_BLOCKS_=============\n");
