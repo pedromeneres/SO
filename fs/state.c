@@ -35,6 +35,40 @@ static inline bool valid_file_handle(int file_handle) {
     return file_handle >= 0 && file_handle < MAX_OPEN_FILES;
 }
 
+
+/**
+ * All locks functions go here!
+ */
+
+void init_t(pthread_rwlock_t *rwlock){
+    if (pthread_rwlock_init(rwlock, NULL)!=0) {                                                                      
+        fprintf(stderr, "Error: init error\n");
+        exit(EXIT_FAILURE);
+    }
+
+}
+
+void rd_lock(pthread_rwlock_t *rwlock) {    
+    if (pthread_rwlock_rdlock(rwlock)!=0) {                                                                      
+        fprintf(stderr, "Error: lock error\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void wr_lock(pthread_rwlock_t *rwlock) {    
+    if (pthread_rwlock_wrlock(rwlock)!=0) {                                                                        
+        fprintf(stderr, "Error: lock error\n"); 
+        exit(EXIT_FAILURE);
+    }
+}
+
+void unlock(pthread_rwlock_t *rwlock) {
+    if (pthread_rwlock_unlock(rwlock)!=0) {                                                                       
+        fprintf(stderr, "Error: unlock error\n"); 
+        exit(EXIT_FAILURE);
+    }
+}
+
 /**
  * We need to defeat the optimizer for the insert_delay() function.
  * Under optimization, the empty loop would be completely optimized away.
@@ -116,6 +150,7 @@ int inode_create(inode_type n_type) {
 				//Makes the index[0] of the inode array of data point to the data_block array in which the data is going to be stored
 				inode_table[inumber].i_data_block[inode_table[inumber].last_written_index] = b;
                 inode_table[inumber].i_size = BLOCK_SIZE;
+                init_t(&inode_table[inumber].rwlock);
 
 
                 dir_entry_t *dir_entry = (dir_entry_t *)data_block_get(b);
@@ -131,6 +166,7 @@ int inode_create(inode_type n_type) {
                 /* In case of a new file, simply sets its size to 0 */
                 inode_table[inumber].i_size = 0;
 				inode_table[inumber].last_written_index = 0;
+                init_t(&inode_table[inumber].rwlock);
 
             }
             return inumber;
@@ -156,7 +192,7 @@ int inode_delete(int inumber) {
 
     freeinode_ts[inumber] = FREE;
 
-	//MUDEI!!!
+	
     if (inode_table[inumber].i_size > 0) {
 		for(int i = 0 ; i < inode_table[inumber].last_written_index; i++){
 			data_block_free(inode_table[inumber].i_data_block[i]);
@@ -204,7 +240,6 @@ int add_dir_entry(int inumber, int sub_inumber, char const *sub_name) {
     }
 
     /* Locates the block containing the directory's entries */
-	//MUDEI!!!
     dir_entry_t *dir_entry =
         (dir_entry_t *)data_block_get(inode_table[inumber].i_data_block[inode_table[inumber].last_written_index]);
     if (dir_entry == NULL) {
@@ -238,7 +273,6 @@ int find_in_dir(int inumber, char const *sub_name) {
     }
 
     /* Locates the block containing the directory's entries */
-	//MUDEI!!!
     dir_entry_t *dir_entry =
         (dir_entry_t *)data_block_get(inode_table[inumber].i_data_block[inode_table[inumber].last_written_index]);
     if (dir_entry == NULL) {

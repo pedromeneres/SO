@@ -26,6 +26,7 @@ typedef struct {
 	/*Each INODE can have more then 1 block of data*/
     int i_data_block[MAX_BLOCK_DATA + 1];
 	int last_written_index;
+    pthread_rwlock_t rwlock;
     /* in a real FS, more fields would exist here */
 } inode_t;
 
@@ -40,6 +41,11 @@ typedef struct {
 } open_file_entry_t;
 
 #define MAX_DIR_ENTRIES (BLOCK_SIZE / sizeof(dir_entry_t))
+
+void init_t(pthread_rwlock_t *rwlock);
+void wr_lock(pthread_rwlock_t *rwlock);
+void rd_lock(pthread_rwlock_t *rwlock);
+void unlock(pthread_rwlock_t *rwlock);
 
 void state_init();
 void state_destroy();

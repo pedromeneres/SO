@@ -10,7 +10,6 @@
 int tfs_init() {
     state_init();
 
-	/*test git pull command*/
     /* create root inode */
     int root = inode_create(T_DIRECTORY);
     if (root != ROOT_DIR_INUM) {
@@ -25,7 +24,7 @@ int tfs_destroy() {
     return 0;
 }
 
-static bool valid_pathname(char const *name) {
+static _Bool valid_pathname(char const *name) {
     return name != NULL && strlen(name) > 1 && name[0] == '/';
 }
 
@@ -113,6 +112,9 @@ ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
         return -1;
     }
 
+
+
+    wr_lock(&inode->rwlock);
 	while (to_write > 0)
 	{
 		long unsigned int written = 0;
@@ -130,6 +132,7 @@ ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
 
 		void *block = data_block_get(inode->i_data_block[inode->last_written_index]);
 		if (block == NULL) {
+            unlock(&inode->rwlock);
             return -1;
     	}
 
@@ -143,6 +146,7 @@ ssize_t tfs_write(int fhandle, void const *buffer, size_t to_write) {
         	}else{
 				inode->i_size += to_write;
 			}
+            unlock(&inode->rwlock);
 			return (ssize_t)to_write;
 		}
 
@@ -173,7 +177,11 @@ ssize_t tfs_read(int fhandle, void *buffer, size_t len) {
         return -1;
     }
 
+    
+    
+
     /* Determine how many bytes to read */
+    rd_lock(&inode->rwlock);
     size_t to_read = inode->i_size;
     if (to_read > len) {
         to_read = len;
@@ -181,20 +189,24 @@ ssize_t tfs_read(int fhandle, void *buffer, size_t len) {
 
 	int i = 0;
 	size_t read = BLOCK_SIZE;
+    size_t increment = file->of_offset;
 	while(i <= inode->last_written_index){
 		if (to_read > 0) {
         	void *block = data_block_get(inode->i_data_block[i]);
-        	if (block == NULL) {
+        	
+            if (block == NULL) {
+                //unlock(inode->rwlock);
             	return -1;
         	}
         	/* Perform the actual read */
-        	memcpy(buffer +  file->of_offset, block, read);
+        	memcpy(buffer +  increment, block, read);
         	/* The offset associated with the file handle is
          	* incremented accordingly */
-        	file->of_offset += read;
+        	increment += read;
     	}
 		i++;
 	}
+    unlock(&inode->rwlock);
     return (ssize_t)to_read;
 }
 
