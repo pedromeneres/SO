@@ -1,4 +1,4 @@
-# Código base do projeto de Sistemas Operativos
+# Projeto de Sistemas Operativos
 
 LEIC-A/LEIC-T/LETI, DEI/IST/ULisboa 2021-22
 
